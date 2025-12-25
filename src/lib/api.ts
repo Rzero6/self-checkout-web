@@ -5,6 +5,11 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 const useAxios = axios.create({
     baseURL: `${BASE_URL}/api`,
     timeout: 5000,
+    headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+    }
 })
 type GetOptions = {
     requireSession?: boolean;

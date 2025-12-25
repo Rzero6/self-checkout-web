@@ -55,11 +55,10 @@ export const PaymentModal = ({
         createTransaction(paymentMethod);
     };
     const handleClose = () => {
-        if (transaction?.status === TransactionStatus.SUCCESS) {
+        if (transaction?.status !== TransactionStatus.PENDING) {
             resetTransaction();
             setPaymentMethod(null);
         }
-
         onClose();
     };
     // silent polling
@@ -88,9 +87,9 @@ export const PaymentModal = ({
                         Payment
                     </DialogTitle>
                     <DialogDescription>
-                        {!transaction
-                            ? "Choose a payment method to continue."
-                            : "Scan QR code to complete payment."}
+                        {!paymentMethod
+                            && "Choose a payment method to continue."
+                        }
                     </DialogDescription>
                 </DialogHeader>
 
@@ -157,7 +156,7 @@ export const PaymentModal = ({
 
                             <div className="flex gap-2 w-full">
                                 <Button
-                                    className="flex-1"
+                                    className="flex-1 flex items-center justify-center gap-2"
                                     onClick={() => fetchTransaction(transaction.order_id)}
                                     disabled={loading.fetch}
                                 >
@@ -170,7 +169,7 @@ export const PaymentModal = ({
 
                                 <Button
                                     variant="destructive"
-                                    className="flex-1"
+                                    className="flex-1 flex items-center justify-center gap-2"
                                     onClick={() => cancelTransaction(transaction.order_id)}
                                     disabled={loading.cancel}
                                 >
@@ -195,7 +194,7 @@ export const PaymentModal = ({
                                 onClick={() => generateTransactionPDF(transaction, details)}
                                 className="w-full"
                             >
-                                <FileDown className="h-4 w-4 mr-2" />
+                                <FileDown className="h-4 w-4 mr-1" />
                                 Download Invoice (PDF)
                             </Button>
                         </div>
@@ -212,7 +211,6 @@ export const PaymentModal = ({
                                 </h3>
 
                                 <Button
-                                    variant="outline"
                                     className="w-full"
                                     onClick={handleCreateNewPayment}
                                 >

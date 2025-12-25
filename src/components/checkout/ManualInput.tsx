@@ -51,7 +51,7 @@ export const ManualInput = ({ onSubmit }: ManualInputProps) => {
                                 type="number"
                                 min={1}
                                 value={quantity}
-                                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                onChange={(e) => setQuantity(Math.max(1, Number.parseInt(e.target.value) || 1))}
                             />
                         </div>
                     </div>

@@ -49,9 +49,7 @@ export const BarcodeCard = ({ barcode, name, price, loading = false }: BarcodeCa
         <Card className="animate-fade-in">
             <CardContent className="p-6 space-y-3 text-center">
                 {loading ? (
-                    <>
-                        <Skeleton className="w-full h-62" />
-                    </>
+                    <Skeleton className="w-full h-62" />
                 ) : (
                     <>
                         <div className="flex justify-center bg-secondary/30 rounded-lg p-4">

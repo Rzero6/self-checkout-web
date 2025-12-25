@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BarcodeScanner } from "../components/checkout/BarcodeScanner";
 import { ManualInput } from "../components/checkout/ManualInput";
 import { CartList } from "../components/checkout/CartList";
@@ -7,9 +7,12 @@ import { useCart } from "../hooks/useCart";
 import { toast } from "sonner";
 
 const Index = () => {
-    const { items, total, itemCount, loading, addItem, updateQuantity, removeItem, clearCart } =
+    const scannerRef = useRef<any>(null);
+
+    const { items, total, itemCount, loading, addItem, updateQuantity, removeItem, clearCart, startNewCart } =
         useCart();
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
 
     const handleScan = (barcode: string) => {
         addItem(barcode);
@@ -27,12 +30,29 @@ const Index = () => {
         setIsPaymentOpen(true);
     };
 
+    const handleOnPaymentModalClose = () => {
+        setIsPaymentOpen(false);
+
+        if (isPaymentSuccess) {
+            startNewCart();
+            setIsPaymentSuccess(false);
+        }
+    }
+
     const handlePaymentSuccess = () => {
-        clearCart();
+        setIsPaymentSuccess(true);
         toast.success("Transaction Done!", {
             description: "Thank you for your purchase.",
         });
     };
+
+    useEffect(() => {
+        if (isPaymentOpen) {
+            scannerRef.current?.stopScanning();
+        } else {
+            scannerRef.current?.startScanning();
+        }
+    }, [isPaymentOpen])
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -55,7 +75,7 @@ const Index = () => {
                     {/* Right: Scanner & Manual Input */}
                     <div className="order-1 lg:order-2 flex flex-col gap-4 h-full">
                         <div className="flex-1 min-h-75">
-                            <BarcodeScanner onScan={handleScan} />
+                            <BarcodeScanner ref={scannerRef} onScan={handleScan} />
                         </div>
                         <ManualInput onSubmit={handleManualInput} />
                     </div>
@@ -64,7 +84,7 @@ const Index = () => {
 
             <PaymentModal
                 isOpen={isPaymentOpen}
-                onClose={() => setIsPaymentOpen(false)}
+                onClose={handleOnPaymentModalClose}
                 onPaymentSuccess={handlePaymentSuccess}
             />
         </div>

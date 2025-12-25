@@ -15,7 +15,7 @@ type LoadingState = {
 };
 
 export const useTransaction = (onPaymentSuccess?: () => void) => {
-    const prevStatusRef = useRef<String | null>(null);
+    const prevStatusRef = useRef<string | null>(null);
     const [transaction, setTransaction] = useState<Transaction | null>(null);
     const [details, setDetails] = useState<TransactionDetails[]>([]);
     const [loading, setLoading] = useState<LoadingState>({

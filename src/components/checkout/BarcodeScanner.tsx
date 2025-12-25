@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { Camera, CameraOff, AlertCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -8,9 +8,14 @@ interface BarcodeScannerProps {
     onScan: (barcode: string) => void;
 }
 
-export const BarcodeScanner = ({ onScan }: BarcodeScannerProps) => {
+export const BarcodeScanner = forwardRef(({ onScan }: BarcodeScannerProps, ref) => {
     const { videoRef, isScanning, lastScannedCode, error, startScanning, stopScanning } =
         useBarcodeScanner(onScan);
+
+    useImperativeHandle(ref, () => ({
+        startScanning,
+        stopScanning,
+    }))
 
     useEffect(() => {
         startScanning();
@@ -96,4 +101,4 @@ export const BarcodeScanner = ({ onScan }: BarcodeScannerProps) => {
             </CardContent>
         </Card>
     );
-};
+});

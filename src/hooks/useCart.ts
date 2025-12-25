@@ -2,10 +2,9 @@ import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { cartApi } from "@/services/cart_service";
 import { productsApi } from "@/services/product_service";
-import { clearSessionId, getSessionId, setSessionId } from "@/lib/utils";
+import { clearSessionId, getSessionId, setSessionId, getErrorMessage } from "@/lib/utils";
 import type { Cart, CartDetail } from "@/types/cart_type";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/utils";
 
 type CartResponse = {
   cart: Cart | null;
@@ -144,6 +143,29 @@ export const useCart = () => {
     }
   }, [cartQuery.data?.cart?.id, queryClient]);
 
+  const startNewCart = useCallback(async () => {
+    try {
+      // Clear existing session
+      clearSessionId();
+      ensureSessionPromise = null;
+
+      // Create new cart
+      const newCart = await cartApi.createCart();
+      if (!newCart?.session_id) {
+        throw new Error("Failed to create new cart session");
+      }
+      setSessionId(newCart.session_id);
+
+      await queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+
+      toast.success("New cart started");
+    } catch (error) {
+      toast.error("Failed to start new cart", {
+        description: getErrorMessage(error),
+      });
+    }
+  }, [cartQuery.data?.cart?.id, queryClient]);
+
   /* ---------------- DERIVED ---------------- */
   const items = cartQuery.data?.items ?? [];
   const total = items.reduce((s, i) => s + (i.subtotal ?? 0), 0);
@@ -159,5 +181,6 @@ export const useCart = () => {
     updateQuantity,
     removeItem,
     clearCart,
+    startNewCart,
   };
 };

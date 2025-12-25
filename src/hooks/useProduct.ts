@@ -1,60 +1,54 @@
 import { getErrorMessage } from "@/lib/utils";
 import { productsApi } from "@/services/product_service";
 import type { Product } from "@/types/product_type";
-import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useProduct = () => {
-    const [item, setItem] = useState<Product | null>(null);
-    const [donationItems, setDonationItems] = useState<Product[] | null>([]);
-    const [loading, setLoading] = useState(true);
-    const effectRan = useRef(false);
+    const {
+        data: item,
+        isFetching: fetchingItem,
+        refetch: fetchRandomItem,
+    } = useQuery<Product>({
+        queryKey: ["randomProduct"],
+        queryFn: async () => {
+            try {
+                const result = await productsApi.getRandom();
+                if (!result) throw new Error("Product not found");
+                return result;
+            } catch (error) {
+                toast.error("Failed to fetch product", {
+                    description: getErrorMessage(error),
+                });
+                throw error;
+            }
+        },
+        staleTime: 1000 * 30,
+    });
 
-    const fetchRandomItem = async (isCancelled: boolean = false) => {
-        setLoading(true);
-        try {
-            const randomItem = await productsApi.getRandom();
-            if (!isCancelled) setItem(randomItem);
-        } catch (error) {
-            console.log(error);
-            toast.error("Failed to fetch product", {
-                description: getErrorMessage(error),
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-    const fetchDonationItems = async (isCancelled: boolean) => {
-        try {
-            const items = await productsApi.getAllDonations();
-            console.log(isCancelled);
-            if (!isCancelled) setDonationItems(items);
-        } catch (error) {
-            toast.error("Failed to fetch products", {
-                description: getErrorMessage(error)
-            });
-        }
-    };
-
-    useEffect(() => {
-        let isCancelled = false;
-
-        if (!effectRan.current) {
-            fetchRandomItem(isCancelled);
-            fetchDonationItems(isCancelled);
-        }
-
-        return () => {
-            isCancelled = true;
-            effectRan.current = true;
-        };
-    }, []);
-
+    const {
+        data: donationItems,
+        isFetching: fetchingDonations,
+    } = useQuery<Product[]>({
+        queryKey: ["donationProducts"],
+        queryFn: async () => {
+            try {
+                const result = await productsApi.getAllDonations();
+                return result ?? [];
+            } catch (error) {
+                toast.error("Failed to fetch donation products", {
+                    description: getErrorMessage(error),
+                });
+                throw error;
+            }
+        },
+        staleTime: 1000 * 60,
+    });
 
     return {
         item,
-        donationItems,
-        loading,
+        donationItems: donationItems ?? [],
+        loading: fetchingItem || fetchingDonations,
         fetchRandomItem,
     };
-}
+};

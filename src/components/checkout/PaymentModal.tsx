@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { PaymentOption } from "./PaymentOptions";
 import { paymentMethods } from "@/data/paymentMethods";
 import { Input } from "../ui/input";
+import { Link } from "react-router-dom";
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -157,7 +158,8 @@ export const PaymentModal = ({
                             <p className="text-xl font-bold">
                                 {formatPrice(transaction.amount)}
                             </p>
-
+                            <Link to={"https://simulator.sandbox.midtrans.com/v2/qris/index"} className="text-blue-400">Click here to use QR Simulator to Pay </Link>
+                            (*copy the image address)
                             <div className="flex gap-2 w-full">
                                 <Button
                                     className="flex-1 flex items-center justify-center gap-2"

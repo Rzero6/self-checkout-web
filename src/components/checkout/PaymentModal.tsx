@@ -158,7 +158,14 @@ export const PaymentModal = ({
                             <p className="text-xl font-bold">
                                 {formatPrice(transaction.amount)}
                             </p>
-                            <Link to={"https://simulator.sandbox.midtrans.com/v2/qris/index"} className="text-blue-400">Click here to use QR Simulator to Pay </Link>
+                            <a
+                                href="https://simulator.sandbox.midtrans.com/v2/qris/index"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400"
+                            >
+                                Click here to use QR Simulator to Pay
+                            </a>
                             (*copy the image address)
                             <div className="flex gap-2 w-full">
                                 <Button

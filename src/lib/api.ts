@@ -15,6 +15,7 @@ type GetOptions = {
     requireSession?: boolean;
     headers?: Record<string, string>;
     params?: Record<string, string>;
+    customTimeout?: number;
 }
 export const getSessionHeaders = () => {
     const sessionId = getSessionId();
@@ -62,7 +63,7 @@ export const handlePostRequest = async <T, B = unknown>(
     body?: B,
     options: GetOptions = {},
 ): Promise<T | null> => {
-    const { requireSession = false, headers = {} } = options;
+    const { requireSession = false, headers = {}, customTimeout = 10000 } = options;
     let finalHeaders = { ...headers };
 
     if (requireSession) {
@@ -75,7 +76,8 @@ export const handlePostRequest = async <T, B = unknown>(
 
     try {
         const response = await useAxios.post(url, body, {
-            headers: finalHeaders
+            headers: finalHeaders,
+            timeout: customTimeout,
         });
         return response.data.data as T;
     } catch (err) {

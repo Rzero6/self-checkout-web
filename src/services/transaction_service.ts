@@ -16,4 +16,10 @@ export const transactionApi = {
     createTransactionCancellation: async (orderId: string): Promise<Transaction | null> => {
         return handlePostRequest(`${apiGroupURL}/${orderId}/cancel`, undefined, { requireSession: true })
     },
+    createInvoice: async (orderId: string, email: string): Promise<boolean | null> => {
+        return handlePostRequest(`${apiGroupURL}/invoice`, {
+            order_id: orderId,
+            email: email,
+        }, { requireSession: false, customTimeout: 20000 })
+    }
 };

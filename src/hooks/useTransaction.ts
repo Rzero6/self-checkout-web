@@ -12,6 +12,7 @@ type LoadingState = {
     create: boolean;
     fetch: boolean;
     cancel: boolean;
+    invoice: boolean;
 };
 
 export const useTransaction = (onPaymentSuccess?: () => void) => {
@@ -22,6 +23,7 @@ export const useTransaction = (onPaymentSuccess?: () => void) => {
         create: false,
         fetch: false,
         cancel: false,
+        invoice: false,
     });
 
     const createTransaction = useCallback(async (paymentType: string) => {
@@ -80,12 +82,29 @@ export const useTransaction = (onPaymentSuccess?: () => void) => {
         }
     }, []);
 
+    const createInvoice = useCallback(async (orderId: string, email: string) => {
+        setLoading((l) => ({ ...l, invoice: true }));
+        try {
+            const success = await transactionApi.createInvoice(orderId, email);
+            if (success)
+                toast.info("Invoice has been sent to " + email);
+            return success;
+        } catch (err) {
+            toast.error("Failed to send Email.", {
+                description: getErrorMessage(err),
+            });
+            return null;
+        } finally {
+            setLoading((l) => ({ ...l, invoice: false }));
+        }
+    }, []);
+
     const resetTransaction = useCallback(() => {
         setTransaction(null);
         setDetails([]);
         prevStatusRef.current = null;
     }, [])
-    
+
     // success side-effect
     useEffect(() => {
         if (
@@ -106,5 +125,6 @@ export const useTransaction = (onPaymentSuccess?: () => void) => {
         fetchTransaction,
         cancelTransaction,
         resetTransaction,
+        createInvoice,
     };
 };

@@ -30,7 +30,7 @@ export const useBarcodeScanner = (
       const videoInputDevices = await codeReaderRef.current.listVideoInputDevices();
       
       if (videoInputDevices.length === 0) {
-        setError("Tidak ada kamera yang ditemukan");
+        setError("No Camera found");
         return;
       }
 
@@ -62,7 +62,7 @@ export const useBarcodeScanner = (
       setIsScanning(true);
     } catch (err) {
       console.error("Failed to start scanner:", err);
-      setError("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
+      setError("Failed to access camera. Make sure to allow camera.");
     }
   }, [onScan]);
 

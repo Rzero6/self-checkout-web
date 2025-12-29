@@ -16,12 +16,12 @@ import { Button } from "../ui/button";
 import { RadioGroup } from "../ui/radio-group";
 import Countdown from "react-countdown";
 import { formatPrice } from "@/lib/utils";
-import { generateTransactionPDF } from "@/lib/pdf";
 import { isQrisTransaction, TransactionStatus } from "@/types/transaction_type";
 import { useTransaction } from "@/hooks/useTransaction";
 import { useEffect, useState } from "react";
 import { PaymentOption } from "./PaymentOptions";
 import { paymentMethods } from "@/data/paymentMethods";
+import { Input } from "../ui/input";
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -42,7 +42,9 @@ export const PaymentModal = ({
         createTransaction,
         cancelTransaction,
         resetTransaction,
+        createInvoice,
     } = useTransaction(onPaymentSuccess);
+    const [email, setEmail] = useState("");
 
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
     const handleCreateNewPayment = () => {
@@ -55,6 +57,8 @@ export const PaymentModal = ({
         createTransaction(paymentMethod);
     };
     const handleClose = () => {
+        if (loading.invoice) return;
+        setEmail("");
         if (transaction?.status !== TransactionStatus.PENDING) {
             resetTransaction();
             setPaymentMethod(null);
@@ -189,13 +193,20 @@ export const PaymentModal = ({
                             <h3 className="text-xl font-bold text-success">
                                 Payment Success
                             </h3>
-
+                            <Input
+                                type="email"
+                                placeholder="Enter email to receive invoice"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={loading.invoice}
+                            />
                             <Button
-                                onClick={() => generateTransactionPDF(transaction, details)}
                                 className="w-full"
+                                onClick={() => createInvoice(transaction.order_id, email)}
+                                disabled={!email || loading.invoice}
                             >
                                 <FileDown className="h-4 w-4 mr-1" />
-                                Download Invoice (PDF)
+                                {loading.invoice ? "Sending..." : "Send Invoice"}
                             </Button>
                         </div>
                     )}

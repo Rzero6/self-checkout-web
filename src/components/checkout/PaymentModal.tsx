@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { PaymentOption } from "./PaymentOptions";
 import { paymentMethods } from "@/data/paymentMethods";
 import { Input } from "../ui/input";
-import { Link } from "react-router-dom";
+import { generateTransactionPDF } from "@/lib/pdf";
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -217,6 +217,16 @@ export const PaymentModal = ({
                                 <FileDown className="h-4 w-4 mr-1" />
                                 {loading.invoice ? "Sending..." : "Send Invoice"}
                             </Button>
+                            <Button
+                                className="w-full"
+                                onClick={() => generateTransactionPDF(transaction, details)}
+                            >
+                                <FileDown className="h-4 w-4 mr-1" />
+                                Download PDF
+                            </Button>
+                            <p className="text-destructive">
+                                *If email failed to send, Railway doesnt allow sending Email through SMTP
+                            </p>
                         </div>
                     )}
 
